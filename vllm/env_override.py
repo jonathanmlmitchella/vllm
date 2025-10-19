@@ -2,8 +2,6 @@
 # SPDX-FileCopyrightText: Copyright contributors to the vLLM project
 import os
 
-import torch
-
 from vllm.logger import init_logger
 
 logger = init_logger(__name__)
@@ -20,4 +18,9 @@ os.environ['PYTORCH_NVML_BASED_CUDA_CHECK'] = '1'
 # see https://github.com/vllm-project/vllm/issues/10480
 os.environ['TORCHINDUCTOR_COMPILE_THREADS'] = '1'
 # see https://github.com/vllm-project/vllm/issues/10619
-torch._inductor.config.compile_threads = 1
+# Guard torch import to avoid forcing heavy dependency at import-time
+try:
+    import torch  # noqa: WPS433
+    torch._inductor.config.compile_threads = 1
+except Exception:  # torch may be unavailable at CLI import time
+    pass
