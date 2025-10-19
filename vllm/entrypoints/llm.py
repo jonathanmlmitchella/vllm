@@ -6,7 +6,6 @@ from collections.abc import Sequence
 from typing import TYPE_CHECKING, Any, Callable, Optional, Union, cast
 
 import cloudpickle
-import torch.nn as nn
 from pydantic import ValidationError
 from tqdm.auto import tqdm
 from typing_extensions import TypeVar
@@ -506,7 +505,7 @@ class LLM:
 
         return self.llm_engine.collective_rpc(method, timeout, args, kwargs)
 
-    def apply_model(self, func: Callable[[nn.Module], _R]) -> list[_R]:
+    def apply_model(self, func: Callable[[Any], _R]) -> list[_R]:
         """
         Run a function directly on the model inside each worker,
         returning the result for each of them.

@@ -10,7 +10,7 @@ from typing import (Annotated, Any, ClassVar, Generic, Literal, Optional,
                     TypeVar, Union)
 
 import regex as re
-import torch
+from typing import TYPE_CHECKING
 from fastapi import HTTPException, UploadFile
 # yapf: disable
 from openai.types.chat.chat_completion_audio import (
@@ -62,7 +62,17 @@ from vllm.utils import random_uuid, resolve_obj_by_qualname
 
 logger = init_logger(__name__)
 
-_LONG_INFO = torch.iinfo(torch.long)
+if TYPE_CHECKING:
+    import torch as _torch
+    _LONG_INFO = _torch.iinfo(_torch.long)
+else:
+    # Avoid importing torch at import time; compute bounds lazily
+    class _LongInfo:
+        # Default to signed 64-bit integer bounds; updated lazily if torch used
+        min = -(2**63)
+        max = (2**63) - 1
+
+    _LONG_INFO = _LongInfo()
 
 
 class OpenAIBaseModel(BaseModel):

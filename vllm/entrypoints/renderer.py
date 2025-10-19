@@ -8,7 +8,6 @@ from dataclasses import dataclass
 from typing import Annotated, Optional, Union
 
 import pybase64
-import torch
 from pydantic import Field
 
 from vllm.config import ModelConfig
@@ -145,6 +144,8 @@ class BaseRenderer(ABC):
         """Load and validate base64-encoded embeddings into prompt objects."""
 
         def _load_and_validate_embed(embed: bytes) -> EngineEmbedsPrompt:
+            # Lazy import torch to reduce import-time overhead
+            import torch  # noqa: WPS433
             tensor = torch.load(
                 io.BytesIO(pybase64.b64decode(embed, validate=True)),
                 weights_only=True,

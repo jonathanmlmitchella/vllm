@@ -10,7 +10,6 @@ from io import StringIO
 from typing import Callable, Optional
 
 import aiohttp
-import torch
 from prometheus_client import start_http_server
 from tqdm import tqdm
 
@@ -131,8 +130,13 @@ class BatchProgressTracker:
             self._pbar.update()
 
     def pbar(self) -> tqdm:
-        enable_tqdm = not torch.distributed.is_initialized(
-        ) or torch.distributed.get_rank() == 0
+        # Import torch lazily to avoid heavy import at module load
+        try:
+            import torch
+            enable_tqdm = (not torch.distributed.is_initialized()
+                           or torch.distributed.get_rank() == 0)
+        except Exception:
+            enable_tqdm = True
         self._pbar = tqdm(total=self._total,
                           unit="req",
                           desc="Running batch",

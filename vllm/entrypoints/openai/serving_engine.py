@@ -9,7 +9,6 @@ from concurrent.futures import ThreadPoolExecutor
 from http import HTTPStatus
 from typing import Any, Callable, ClassVar, Generic, Optional, TypeVar, Union
 
-import torch
 from fastapi import Request
 from pydantic import BaseModel, ConfigDict, Field
 from starlette.datastructures import Headers
@@ -118,7 +117,8 @@ class TextTokensPrompt(TypedDict):
 
 
 class EmbedsPrompt(TypedDict):
-    prompt_embeds: torch.Tensor
+    # Use Any to avoid importing torch at import-time
+    prompt_embeds: Any
 
 
 RequestPrompt = Union[list[int], str, TextTokensPrompt, EmbedsPrompt]
