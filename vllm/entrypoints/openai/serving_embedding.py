@@ -6,7 +6,6 @@ from collections.abc import AsyncGenerator, Mapping
 from typing import Any, Final, Literal, Optional, Union, cast
 
 import numpy as np
-import torch
 from fastapi import Request
 from typing_extensions import assert_never, override
 
@@ -464,6 +463,8 @@ class EmbeddingMixin(OpenAIServing):
                             f"Unsupported output type: "
                             f"{type(result.outputs).__name__}")
 
+                    # Import torch lazily to avoid heavy import at module load
+                    import torch  # noqa: WPS433
                     if not isinstance(embedding_data, torch.Tensor):
                         embedding_data = torch.tensor(embedding_data,
                                                       dtype=torch.float32)

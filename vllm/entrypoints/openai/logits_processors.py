@@ -5,8 +5,6 @@ from collections.abc import Iterable
 from functools import lru_cache, partial
 from typing import Optional, Union
 
-import torch
-
 from vllm.sampling_params import LogitsProcessor
 from vllm.transformers_utils.tokenizer import AnyTokenizer
 
@@ -17,10 +15,11 @@ class AllowedTokenIdsLogitsProcessor:
 
     def __init__(self, allowed_ids: Iterable[int]):
         self.allowed_ids: Optional[list[int]] = list(allowed_ids)
-        self.mask: Optional[torch.Tensor] = None
+        self.mask = None  # initialized lazily when first used
 
-    def __call__(self, token_ids: list[int],
-                 logits: torch.Tensor) -> torch.Tensor:
+    def __call__(self, token_ids: list[int], logits):
+        # Lazy import torch to avoid heavy import at module load
+        import torch  # noqa: WPS433
         if self.mask is None:
             self.mask = torch.ones((logits.shape[-1], ),
                                    dtype=torch.bool,
@@ -44,11 +43,8 @@ def _get_allowed_token_ids_logits_processor(
     return AllowedTokenIdsLogitsProcessor(allowed_token_ids)
 
 
-def logit_bias_logits_processor(
-    logit_bias: dict[int, float],
-    token_ids: list[int],
-    logits: torch.Tensor,
-) -> torch.Tensor:
+def logit_bias_logits_processor(logit_bias: dict[int, float],
+                               token_ids: list[int], logits):
     for token_id, bias in logit_bias.items():
         logits[token_id] += bias
     return logits

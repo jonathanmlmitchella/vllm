@@ -2,9 +2,7 @@
 # SPDX-FileCopyrightText: Copyright contributors to the vLLM project
 
 from collections.abc import Sequence
-from typing import Optional, Union
-
-import torch
+from typing import Any, Optional, Union
 
 from vllm.logger import init_logger
 from vllm.lora.request import LoRARequest
@@ -24,7 +22,7 @@ class RequestLogger:
         request_id: str,
         prompt: Optional[str],
         prompt_token_ids: Optional[list[int]],
-        prompt_embeds: Optional[torch.Tensor],
+        prompt_embeds: Optional[Any],
         params: Optional[Union[SamplingParams, PoolingParams,
                                BeamSearchParams]],
         lora_request: Optional[LoRARequest],

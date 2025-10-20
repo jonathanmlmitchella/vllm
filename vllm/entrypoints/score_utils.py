@@ -1,8 +1,6 @@
 # SPDX-License-Identifier: Apache-2.0
 # SPDX-FileCopyrightText: Copyright contributors to the vLLM project
 from typing import Any, Optional, Union, cast
-
-from torch.nn import CosineSimilarity
 from typing_extensions import Required, TypeAlias, TypedDict
 
 from vllm.config import ModelConfig
@@ -41,7 +39,8 @@ def _cosine_similarity(
     embed_1: list[PoolingRequestOutput],
     embed_2: list[PoolingRequestOutput],
 ) -> list[PoolingRequestOutput]:
-
+    # Lazy import to avoid importing torch at module import time
+    from torch.nn import CosineSimilarity  # noqa: WPS433
     scorer = CosineSimilarity(0)
     scores: Union[list[PoolingRequestOutput]] = []
 
